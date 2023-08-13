@@ -19,32 +19,44 @@ pub fn dir_bin() -> String {
     format!("{}bin.dat", home_dir().unwrap())
 }
 
-use serde_yaml::Value;
-use std::fs;
-use std::io::Error;
+use std::fs::{self, File};
+use std::io::{self, Write};
 use std::path::Path;
+use serde_yaml::Value;
 
-fn read_from_yaml(key: &str) -> Result<Option<Value>, Error> {
-    // 读取文件内容
-    let content = fs::read_to_string(Path::new(&FILE_PATH).expand_tilde()?)?;
-    let yaml: Value = serde_yaml::from_str(&content)?;
+pub fn read_from_yaml(key: &str) -> Result<Option<Value>, io::Error> {
+    let file_path = dir_bin();
+    let expanded_path_string = Path::new(&file_path).expand_tilde().ok_or(io::Error::new(io::ErrorKind::NotFound, "Cannot expand tilde"))?;
+    let expanded_path = Path::new(&expanded_path_string);
+    
+    if !expanded_path.exists() {
+        File::create(&expanded_path)?.write_all(b"---\n")?;
+    }
+    
+    let content = fs::read_to_string(&expanded_path)?;
+    let yaml: Value = serde_yaml::from_str(&content).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
-    // 获取指定键的值
     Ok(yaml.get(key).cloned())
 }
 
-fn write_to_yaml(key: &str, value: &Value) -> Result<(), Error> {
-    // 读取现有的YAML文件内容
-    let content = fs::read_to_string(Path::new(&FILE_PATH).expand_tilde()?)?;
-    let mut yaml: Value = serde_yaml::from_str(&content)?;
+pub fn write_to_yaml(key: &str, value: &Value) -> Result<(), io::Error> {
+    let file_path = dir_bin();
+    let expanded_path_string = Path::new(&file_path).expand_tilde().ok_or(io::Error::new(io::ErrorKind::NotFound, "Cannot expand tilde"))?;
+    let expanded_path = Path::new(&expanded_path_string);
 
-    // 设置或更新指定的键
+    if !expanded_path.exists() {
+        File::create(&expanded_path)?.write_all(b"---\n")?;
+    }
+    
+    let content = fs::read_to_string(&expanded_path)?;
+    let mut yaml: Value = serde_yaml::from_str(&content).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+
     yaml[key] = value.clone();
-
-    // 将更新后的内容写回文件
-    fs::write(Path::new(&FILE_PATH).expand_tilde()?, serde_yaml::to_string(&yaml)?)?;
+    fs::write(&expanded_path, serde_yaml::to_string(&yaml).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?)?;
+    
     Ok(())
 }
+
 
 // 将 ~ 符号扩展到完整的用户家目录路径
 trait ExpandTilde {
@@ -60,7 +72,6 @@ impl ExpandTilde for Path {
         }
     }
 }
-
 // fn main() {
 //     // 示例使用
 //     if let Ok(value) = read_from_yaml("some_key") {
