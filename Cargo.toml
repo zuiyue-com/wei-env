@@ -8,3 +8,6 @@ homepage = "https://github.com/zuiyue-com/wei-env"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+dirs = "5"
