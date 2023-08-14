@@ -24,7 +24,7 @@ use std::io::{self, Write};
 use std::path::Path;
 use serde_yaml::Value;
 
-pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
+pub fn read(dir: &str, key: &str) -> Result<String, io::Error> {
     let expanded_path = Path::new(dir);
     
     // Ensure the parent directory exists
@@ -40,8 +40,8 @@ pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
     
     let content = fs::read_to_string(&expanded_path)?;
     let yaml: Value = serde_yaml::from_str(&content).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
-
-    Ok(yaml.get(key).cloned())
+    
+    Ok(yaml.get(key).and_then(Value::as_str).unwrap_or("").to_string())
 }
 
 
