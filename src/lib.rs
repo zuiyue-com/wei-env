@@ -1,3 +1,5 @@
+use std::env;
+
 pub fn home_dir() -> Result<String, Box<dyn std::error::Error>> {
     let home_dir = if cfg!(target_os = "windows") {
         format!("{}/AppData/Local/wei/", std::env::var("USERPROFILE")?)
@@ -70,7 +72,9 @@ pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
     Ok(())
 }
 
-
+pub fn bin_init(name: &str) {
+    write(&dir_bin(), name, &env::current_exe().unwrap().display().to_string()).unwrap();
+}
 
 
 // fn main() {
