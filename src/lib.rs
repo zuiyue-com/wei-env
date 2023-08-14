@@ -39,10 +39,8 @@ pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
     Ok(yaml.get(key).cloned())
 }
 
-pub fn write(dir: &str, key: &str, value: &Value) -> Result<(), io::Error> {
-    let file_path = dir;
-    let expanded_path_string = Path::new(&file_path);
-    let expanded_path = Path::new(&expanded_path_string);
+pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
+    let expanded_path = Path::new(file_path);
 
     if !expanded_path.exists() {
         File::create(&expanded_path)?.write_all(b"---\n")?;
@@ -51,11 +49,14 @@ pub fn write(dir: &str, key: &str, value: &Value) -> Result<(), io::Error> {
     let content = fs::read_to_string(&expanded_path)?;
     let mut yaml: Value = serde_yaml::from_str(&content).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
-    yaml[key] = value.clone();
+    // Set the value for the given key
+    yaml[key] = Value::String(value.to_string());
+
     fs::write(&expanded_path, serde_yaml::to_string(&yaml).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?)?;
-    
+
     Ok(())
 }
+
 
 
 // fn main() {
