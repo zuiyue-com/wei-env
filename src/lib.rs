@@ -7,11 +7,11 @@ pub fn home_dir() -> Result<String, Box<dyn std::error::Error>> {
     Ok(home_dir)
 }
 
-pub fn uuid_dir() -> String {
+pub fn dir_uuid() -> String {
     format!("{}uuid.dat", home_dir().unwrap())
 }
 
-pub fn user_dir() -> String {
+pub fn dir_user() -> String {
     format!("{}user.dat", home_dir().unwrap())
 }
 
@@ -24,9 +24,9 @@ use std::io::{self, Write};
 use std::path::Path;
 use serde_yaml::Value;
 
-pub fn read_from_yaml(key: &str) -> Result<Option<Value>, io::Error> {
-    let file_path = dir_bin();
-    let expanded_path_string = Path::new(&file_path).expand_tilde().ok_or(io::Error::new(io::ErrorKind::NotFound, "Cannot expand tilde"))?;
+pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
+    let file_path = dir;
+    let expanded_path_string = Path::new(&file_path);
     let expanded_path = Path::new(&expanded_path_string);
     
     if !expanded_path.exists() {
@@ -39,9 +39,9 @@ pub fn read_from_yaml(key: &str) -> Result<Option<Value>, io::Error> {
     Ok(yaml.get(key).cloned())
 }
 
-pub fn write_to_yaml(key: &str, value: &Value) -> Result<(), io::Error> {
-    let file_path = dir_bin();
-    let expanded_path_string = Path::new(&file_path).expand_tilde().ok_or(io::Error::new(io::ErrorKind::NotFound, "Cannot expand tilde"))?;
+pub fn write(dir: &str, key: &str, value: &Value) -> Result<(), io::Error> {
+    let file_path = dir;
+    let expanded_path_string = Path::new(&file_path);
     let expanded_path = Path::new(&expanded_path_string);
 
     if !expanded_path.exists() {
@@ -58,20 +58,6 @@ pub fn write_to_yaml(key: &str, value: &Value) -> Result<(), io::Error> {
 }
 
 
-// 将 ~ 符号扩展到完整的用户家目录路径
-trait ExpandTilde {
-    fn expand_tilde(&self) -> Option<String>;
-}
-
-impl ExpandTilde for Path {
-    fn expand_tilde(&self) -> Option<String> {
-        if let Some(home_dir) = dirs::home_dir() {
-            self.to_str().map(|p| p.replace("~", &home_dir.to_string_lossy()))
-        } else {
-            None
-        }
-    }
-}
 // fn main() {
 //     // 示例使用
 //     if let Ok(value) = read_from_yaml("some_key") {
