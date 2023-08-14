@@ -23,12 +23,21 @@ use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 use serde_yaml::Value;
+use std::fs;
+use std::io;
+use std::path::Path;
+use serde_yaml::Value;
 
 pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
-    let file_path = dir;
-    let expanded_path_string = Path::new(&file_path);
-    let expanded_path = Path::new(&expanded_path_string);
+    let expanded_path = Path::new(dir);
     
+    // Ensure the parent directory exists
+    if let Some(parent) = expanded_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(&parent)?;
+        }
+    }
+
     if !expanded_path.exists() {
         File::create(&expanded_path)?.write_all(b"---\n")?;
     }
@@ -39,8 +48,16 @@ pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
     Ok(yaml.get(key).cloned())
 }
 
+
 pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
     let expanded_path = Path::new(file_path);
+
+    // Ensure the parent directory exists
+    if let Some(parent) = expanded_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(&parent)?;
+        }
+    }
 
     if !expanded_path.exists() {
         File::create(&expanded_path)?.write_all(b"---\n")?;
@@ -56,6 +73,7 @@ pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
 
     Ok(())
 }
+
 
 
 
