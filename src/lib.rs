@@ -23,10 +23,6 @@ use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 use serde_yaml::Value;
-use std::fs;
-use std::io;
-use std::path::Path;
-use serde_yaml::Value;
 
 pub fn read(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
     let expanded_path = Path::new(dir);
