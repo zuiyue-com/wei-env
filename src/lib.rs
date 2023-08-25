@@ -6,7 +6,17 @@ pub fn home_dir() -> Result<String, Box<dyn std::error::Error>> {
     } else {
         format!("{}/.wei/", std::env::var("HOME")?)
     };
+    fs::create_dir_all(home_dir)?;
     Ok(home_dir)
+}
+
+pub fn dir_daemon() -> String {
+    let path = Path::new(format!("{}daemon.dat", home_dir().unwrap()));
+    if path.exists() {
+        return path.display().to_string();
+    } 
+
+    "./daemon.dat".to_string()
 }
 
 pub fn dir_uuid() -> String {
@@ -26,6 +36,7 @@ use std::io::{self, Write};
 use std::path::Path;
 use serde_yaml::Value;
 
+// 读取 yaml 文件里面的key值 转成string
 pub fn read(dir: &str, key: &str) -> Result<String, io::Error> {
     let expanded_path = Path::new(dir);
     
@@ -46,7 +57,28 @@ pub fn read(dir: &str, key: &str) -> Result<String, io::Error> {
     Ok(yaml.get(key).and_then(Value::as_str).unwrap_or("").to_string())
 }
 
+// 读取 yaml 文件里面的key值 
+pub fn read_value(dir: &str, key: &str) -> Result<Option<Value>, io::Error> {
+    let expanded_path = Path::new(dir);
+    
+    // Ensure the parent directory exists
+    if let Some(parent) = expanded_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(&parent)?;
+        }
+    }
 
+    if !expanded_path.exists() {
+        File::create(&expanded_path)?.write_all(b"---\n")?;
+    }
+    
+    let content = fs::read_to_string(&expanded_path)?;
+    let yaml: Value = serde_yaml::from_str(&content).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+    
+    Ok(yaml.get(key).cloned())
+}
+
+// 使用 yaml 写入文件
 pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
     let expanded_path = Path::new(file_path);
 
@@ -72,19 +104,7 @@ pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
     Ok(())
 }
 
+// 初始化执行文件的路径，方便其它执行文件调用
 pub fn bin_init(name: &str) {
     write(&dir_bin(), name, &env::current_exe().unwrap().display().to_string()).unwrap();
 }
-
-
-// fn main() {
-//     // 示例使用
-//     if let Ok(value) = read_from_yaml("some_key") {
-//         println!("Read value: {:?}", value);
-//     }
-
-//     let new_value = Value::String("New Content".to_string());
-//     if write_to_yaml("some_key", &new_value).is_ok() {
-//         println!("Value written successfully!");
-//     }
-// }
