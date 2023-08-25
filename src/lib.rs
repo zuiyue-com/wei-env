@@ -6,12 +6,13 @@ pub fn home_dir() -> Result<String, Box<dyn std::error::Error>> {
     } else {
         format!("{}/.wei/", std::env::var("HOME")?)
     };
-    fs::create_dir_all(home_dir)?;
+    fs::create_dir_all(home_dir.clone())?;
     Ok(home_dir)
 }
 
 pub fn dir_daemon() -> String {
-    let path = Path::new(format!("{}daemon.dat", home_dir().unwrap()));
+    let dir = format!("{}daemon.dat", home_dir().unwrap());
+    let path = Path::new(&dir);
     if path.exists() {
         return path.display().to_string();
     } 
