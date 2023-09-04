@@ -20,12 +20,20 @@ pub fn dir_daemon() -> String {
     "./daemon.dat".to_string()
 }
 
+pub fn dir_status() -> String {
+    format!("{}status.dat", home_dir().unwrap())
+}
+
 pub fn dir_uuid() -> String {
     format!("{}uuid.dat", home_dir().unwrap())
 }
 
 pub fn dir_user() -> String {
     format!("{}user.dat", home_dir().unwrap())
+}
+
+pub fn dir_bin() -> String {
+    format!("{}bin.dat", home_dir().unwrap())
 }
 
 pub fn dir_bin() -> String {
