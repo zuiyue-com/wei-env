@@ -36,10 +36,6 @@ pub fn dir_bin() -> String {
     format!("{}bin.dat", home_dir().unwrap())
 }
 
-pub fn dir_bin() -> String {
-    format!("{}bin.dat", home_dir().unwrap())
-}
-
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
