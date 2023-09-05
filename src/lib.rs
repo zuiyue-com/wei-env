@@ -32,12 +32,12 @@ pub fn status() -> String {
 }
 
 /// 开启所有进程
-pub fn open() {
+pub fn start() {
     write(&dir_status(), "status", "1").unwrap();
 }
 
 /// 关闭所有进程
-pub fn close() {
+pub fn stop() {
     write(&dir_status(), "status", "0").unwrap();
 }
 
