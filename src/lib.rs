@@ -23,11 +23,12 @@ pub fn dir_daemon() -> String {
 /// 读取当前状态
 pub fn status() -> String {
     // 如果文件不存在，则创建文件，写入1
-    let path = Path::new(&dir_status());
+    let path_status = dir_status();
+    let path = Path::new(&path_status);
     if !path.exists() {
-        write(&dir_status(), "status", "1").unwrap();
+        write(&path_status, "status", "1").unwrap();
     }
-    std::fs::read_to_string(dir_status()).unwrap();
+    std::fs::read_to_string(&path_status).unwrap()
 }
 
 /// 关闭所有进程
