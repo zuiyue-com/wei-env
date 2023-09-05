@@ -31,6 +31,11 @@ pub fn status() -> String {
     std::fs::read_to_string(&path_status).unwrap()
 }
 
+/// 开启所有进程
+pub fn open() {
+    write(&dir_status(), "status", "1").unwrap();
+}
+
 /// 关闭所有进程
 pub fn close() {
     write(&dir_status(), "status", "0").unwrap();
