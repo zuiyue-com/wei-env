@@ -28,7 +28,7 @@ pub fn status() -> String {
     if !path.exists() {
         write(&path_status, "status", "1").unwrap();
     }
-    std::fs::read_to_string(&path_status).unwrap()
+    read(&path_status, "status").unwrap()
 }
 
 /// 开启所有进程
