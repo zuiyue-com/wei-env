@@ -31,6 +31,28 @@ pub fn status() -> String {
     read(&path_status, "status").unwrap()
 }
 
+pub fn task_start() {
+    write(&task_path(), "task", "1").unwrap();
+}
+
+pub fn task_stop() {
+    write(&task_path(), "task", "0").unwrap();
+}
+
+pub fn task_status() -> String {
+    // 如果文件不存在，则创建文件，写入1
+    let path_status = task_path();
+    let path = Path::new(&path_status);
+    if !path.exists() {
+        write(&path_status, "status", "1").unwrap();
+    }
+    read(&path_status, "status").unwrap()
+}
+
+pub fn task_path() -> String {
+    format!("{}task.dat", home_dir().unwrap())
+}
+
 /// 开启所有进程
 pub fn start() {
     write(&dir_status(), "status", "1").unwrap();
