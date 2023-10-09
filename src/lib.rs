@@ -32,11 +32,11 @@ pub fn status() -> String {
 }
 
 pub fn task_start() {
-    write(&task_path(), "task", "1").unwrap();
+    write(&task_path(), "status", "1").unwrap();
 }
 
 pub fn task_stop() {
-    write(&task_path(), "task", "0").unwrap();
+    write(&task_path(), "status", "0").unwrap();
 }
 
 pub fn task_status() -> String {
