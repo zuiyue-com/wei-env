@@ -154,5 +154,9 @@ pub fn write(file_path: &str, key: &str, value: &str) -> Result<(), io::Error> {
 
 // 初始化执行文件的路径，方便其它执行文件调用
 pub fn bin_init(name: &str) {
-    write(&dir_bin(), name, &env::current_exe().unwrap().display().to_string()).unwrap();
+    let mut path = std::env::current_dir().unwrap();
+    path.push("./src/main.rs");
+    if path.exists() {
+        write(&dir_bin(), name, &env::current_exe().unwrap().display().to_string()).unwrap();    
+    }    
 }
